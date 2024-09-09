@@ -1,10 +1,14 @@
 #include "uart.h"
+#include "shell.h"
 
-void main() {
+int main() {
     uart_init();
     uart_puts("Hello World!\n");
-
+    
     while (1) {
-        uart_send(uart_getc());
+        shell();
     }
+    
+    
+    return 0;
 }

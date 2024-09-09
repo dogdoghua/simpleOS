@@ -1,5 +1,5 @@
 #include "gpio.h"
-
+#include "sprintf.h"
 /* Auxilary mini UART registers */
 #define AUX_ENABLE      ((volatile unsigned int*)(MMIO_BASE+0x00215004))
 #define AUX_MU_IO       ((volatile unsigned int*)(MMIO_BASE+0x00215040))
@@ -13,6 +13,9 @@
 #define AUX_MU_CNTL     ((volatile unsigned int*)(MMIO_BASE+0x00215060))
 #define AUX_MU_STAT     ((volatile unsigned int*)(MMIO_BASE+0x00215064))
 #define AUX_MU_BAUD     ((volatile unsigned int*)(MMIO_BASE+0x00215068))
+
+extern volatile unsigned char _end;
+
 
 void uart_init () {
 
@@ -65,6 +68,41 @@ void uart_puts (char *s) {
     while (*s) {
         /* convert newline to carriage return + newline */
         if(*s == '\n')
+            uart_send('\r');
+        uart_send(*s++);
+    }
+}
+
+void uart_flush()
+{
+	char tmp;
+	do{tmp = (char)(*AUX_MU_IO);}while(*AUX_MU_LSR&0x01);
+}
+
+void uart_hex(unsigned int d) {
+    unsigned int n;
+    int c;
+    for(c=28;c>=0;c-=4) {
+        // get highest tetrad
+        n=(d>>c)&0xF;
+        // 0-9 => '0'-'9', 10-15 => 'A'-'F'
+        n+=n>9?0x37:0x30;
+        uart_send(n);
+    }
+}
+
+void printf(char *fmt, ...) {
+    __builtin_va_list args;
+    __builtin_va_start(args, fmt);
+    // we don't have memory allocation yet, so we
+    // simply place our string after our code
+    char *s = (char*)&_end;
+    // use sprintf to format our string
+    vsprintf(s,fmt,args);
+    // print out as usual
+    while(*s) {
+        /* convert newline to carrige return + newline */
+        if(*s=='\n')
             uart_send('\r');
         uart_send(*s++);
     }
