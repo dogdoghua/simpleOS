@@ -1,14 +1,10 @@
 #include "uart.h"
 #include "shell.h"
+#include "mailbox.h"
 
 int main() {
     uart_init();
     uart_puts("Hello World!\n");
-    
-    while (1) {
-        shell();
-    }
-    
-    
+    shell();
     return 0;
 }
