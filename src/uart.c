@@ -77,6 +77,7 @@ void uart_flush()
 {
 	char tmp;
 	do{tmp = (char)(*AUX_MU_IO);}while(*AUX_MU_LSR&0x01);
+    tmp++;  // operation set for preventing compile waring
 }
 
 void uart_hex(unsigned int d) {
