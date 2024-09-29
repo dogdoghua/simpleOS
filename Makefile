@@ -3,6 +3,7 @@ SRC_DIR = src
 INC_DIR = inc
 OBJ_DIR = obj
 
+CPIO_PTH = /home/osdi/initramfs.cpio
 SRCS = $(wildcard $(SRC_DIR)/*.c)
 OBJS = $(patsubst $(SRC_DIR)/%.c, $(OBJ_DIR)/%.o, $(SRCS))
 CFLAGS = -Wall -O2 -ffreestanding -nostdinc -nostdlib -nostartfiles -I$(INC_DIR)
@@ -23,4 +24,4 @@ clean:
 	rm kernel8.elf $(OBJ_DIR)/*.o > /dev/null 2> /dev/null || true
 
 run:
-	qemu-system-aarch64 -M raspi3 -kernel kernel8.img -display none -serial null -serial stdio
+	qemu-system-aarch64 -M raspi3 -kernel kernel8.img -initrd $(CPIO_PTH) -display none -serial null -serial stdio
